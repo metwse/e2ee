@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "e2ee"
+]
+default-members = [
+    "e2ee"
+]
+resolver = "2"
