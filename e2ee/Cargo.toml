@@ -1,0 +1,12 @@
+[package]
+name = "e2ee"
+version = "0.0.0"
+edition = "2024"
+license = "MIT"
+readme = "../README.md"
+description = "Transport-agnostic end-to-end encryption framework in Rust."
+homepage = "https://github.com/metwse/e2ee"
+repository = "https://github.com/metwse/e2ee"
+categories = ["cryptography"]
+
+[dependencies]
