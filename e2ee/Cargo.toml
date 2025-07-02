@@ -10,4 +10,20 @@ repository = "https://github.com/metwse/e2ee"
 categories = ["cryptography"]
 keywords = ["crypto"]
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+default = ["ring"]
+
+aws-lc-rs = ["aws_lc_rs"]
+aws_lc_rs = ["dep:aws-lc-rs"]
+ring = ["dep:ring"]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(coverage,coverage_nightly)'] }
+
 [dependencies]
+ring = { workspace = true, optional = true }
+aws-lc-rs = { workspace = true, optional = true }

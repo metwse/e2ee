@@ -4,7 +4,7 @@
 //! tunnels between pairs.
 //!
 //! The library currently supports two key agreement protocols:
-//! - `3xdh` — Triple Diffie-Hellman handshake, inspired by the
+//! - [`x3dh`] — Triple Diffie-Hellman handshake, inspired by the
 //!   Signal Protocol.
 //! - `ca` — Certificate-based authentication via trusted certificate
 //!   authorities.
@@ -30,11 +30,14 @@
     unreachable_pub,
     unused_qualifications
 )]
+// Enable documentation for all features on docs.rs.
+#![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 #![no_std]
 extern crate alloc;
 
-/// Components for establishing encrypted sessions.
-pub mod peer;
+/// Extended Triple Diffie-Hellman, as described by
+/// [Signal](https://signal.org/docs/specifications/x3dh/x3dh.pdf).
+pub mod x3dh;
 
-/// Encrypted tunnel.
-pub mod tunnel;
+/// Crypto provider interface.
+pub mod crypto;

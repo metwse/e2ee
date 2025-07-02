@@ -6,3 +6,8 @@ default-members = [
     "e2ee"
 ]
 resolver = "2"
+
+[workspace.dependencies]
+ring = "0.17"
+aws-lc-rs = "1.13"
+openssl = "0.10"
