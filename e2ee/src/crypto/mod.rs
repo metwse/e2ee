@@ -1,26 +1,28 @@
 use crate::sync::Arc;
-use alloc::vec::Vec;
+
+/// Unified crypto interface across providers.
+mod provider;
 
 /// Key formats used in e2ee.
 mod keys;
 
 /// Cryptographic algorithms interface.
-mod algorithms;
+pub mod algorithms;
 
-#[doc(inline)]
 pub use keys::*;
 
-#[doc(inline)]
-pub use algorithms::*;
+pub use provider::*;
+
+/// aws-lc-rs based `CryptoProvider`.
+#[cfg(feature = "aws_lc_rs")]
+pub mod aws_lc_rs;
 
 /// Cryptographic functions used by e2ee.
 pub struct CryptoProvider {
-    /// List of supported key exchange algorithms.
-    pub kx: Vec<&'static dyn KeyExchangeAlgorithm>,
     /// How to complete HKDF with the suite's hash function.
-    pub hkdf_provider: Vec<&'static dyn Hkdf>,
+    pub hkdf: &'static dyn HkdfProvider,
     /// For loading keys from `der` format.
-    pub key_provider: &'static dyn KeyProvider,
+    pub key: &'static dyn KeyProvider,
 }
 
 impl CryptoProvider {
