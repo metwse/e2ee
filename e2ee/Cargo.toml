@@ -11,14 +11,17 @@ categories = ["cryptography"]
 keywords = ["crypto"]
 
 [package.metadata.docs.rs]
-features = ["ring"]
+default = ["aws-lc-rs"]
+
+features = ["aws_lc_rs"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 std = ["once_cell/std"]
-ring = ["dep:ring"]
+aws-lc-rs = ["aws_lc_rs"]
+aws_lc_rs = ["dep:aws-lc-rs"]
 
 [dependencies]
-ring = { workspace = true, optional = true }
+aws-lc-rs = { workspace = true, optional = true }
 # only required for no-std
 once_cell = { workspace = true }
