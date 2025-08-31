@@ -18,10 +18,13 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 std = ["once_cell/std"]
-aws-lc-rs = ["aws_lc_rs"]
 aws_lc_rs = ["dep:aws-lc-rs"]
 
 [dependencies]
 aws-lc-rs = { workspace = true, optional = true }
 # only required for no-std
 once_cell = { workspace = true }
+zeroize = { workspace = true }
+
+[dev-dependencies]
+hex = { workspace = true }

@@ -1,17 +1,13 @@
 use crate::sync::Arc;
 
-/// Unified crypto interface across providers.
-mod provider;
+/// HMAC-based key derivation interface.
+pub mod hkdf;
 
-/// Key formats used in e2ee.
-mod keys;
+/// Key interface used in e2ee.
+pub mod key;
 
-/// Cryptographic algorithms interface.
-pub mod algorithms;
-
-pub use keys::*;
-
-pub use provider::*;
+/// Hashing interface.
+pub mod hash;
 
 /// aws-lc-rs based `CryptoProvider`.
 #[cfg(feature = "aws_lc_rs")]
@@ -19,10 +15,12 @@ pub mod aws_lc_rs;
 
 /// Cryptographic functions used by e2ee.
 pub struct CryptoProvider {
-    /// How to complete HKDF with the suite's hash function.
-    pub hkdf: &'static dyn HkdfProvider,
+    /// HMAC-based key derivation.
+    pub hkdf: &'static dyn hkdf::Provider,
+    /// Hash functions.
+    pub hash: &'static dyn hash::Provider,
     /// For loading keys from `der` format.
-    pub key: &'static dyn KeyProvider,
+    pub key: &'static dyn key::Provider,
 }
 
 impl CryptoProvider {
