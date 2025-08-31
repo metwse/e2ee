@@ -18,7 +18,10 @@ extern crate std;
 pub mod x3dh;
 
 /// Error reporting.
-pub mod error;
+mod error;
+
+#[doc(inline)]
+pub use error::Error;
 
 /// Double Ratchet, as described by
 /// [Signal](https://signal.org/docs/specifications/doubleratchet/doubleratchet.pdf).

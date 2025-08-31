@@ -1,5 +1,5 @@
 use super::{super::hkdf::*, AwsLcRs};
-use crate::error::Unspecified;
+use crate::Error;
 use alloc::boxed::Box;
 use aws_lc_rs::hkdf;
 
@@ -9,7 +9,7 @@ impl Provider for AwsLcRs {
         algorithm: Algorithm,
         salt: Option<&[u8]>,
         secret: &[u8],
-    ) -> Box<dyn Expander> {
+    ) -> Result<Box<dyn Expander>, Error> {
         let salt = salt.unwrap_or(
             ZERO_SALT[match algorithm {
                 Algorithm::Sha256 => 0,
@@ -28,15 +28,14 @@ impl Provider for AwsLcRs {
         );
         let pseudo_random_key = salt.extract(secret);
 
-        Box::new(Prk { pseudo_random_key })
+        Ok(Box::new(Prk { pseudo_random_key }))
     }
 
     fn is_algorithm_supported(&self, algorithm: Algorithm) -> bool {
-        match algorithm {
-            Algorithm::Sha256 => true,
-            Algorithm::Sha384 => true,
-            Algorithm::Sha512 => true,
-        }
+        matches!(
+            algorithm,
+            Algorithm::Sha256 | Algorithm::Sha384 | Algorithm::Sha512
+        )
     }
 }
 
@@ -57,14 +56,11 @@ struct Prk {
 }
 
 impl Expander for Prk {
-    fn expand(&self, info: &[&[u8]], len: usize) -> Result<Okm, Unspecified> {
-        let okm = self
-            .pseudo_random_key
-            .expand(info, Len(len))
-            .map_err(|_| Unspecified)?;
+    fn expand(&self, info: &[&[u8]], len: usize) -> Result<Okm, Error> {
+        let okm = self.pseudo_random_key.expand(info, Len(len))?;
 
         let mut buf = alloc::vec![0; len];
-        okm.fill(&mut buf).map_err(|_| Unspecified)?;
+        okm.fill(&mut buf)?;
 
         Ok(Okm { buf })
     }
@@ -72,7 +68,7 @@ impl Expander for Prk {
 
 #[test]
 #[cfg(test)]
-fn test() -> Result<(), crate::error::Unspecified> {
+fn test() -> Result<(), Error> {
     let provider = AwsLcRs;
 
     struct TestCase {
@@ -112,7 +108,7 @@ fn test() -> Result<(), crate::error::Unspecified> {
             Algorithm::Sha256,
             Some(&hex::decode(test_case.salt).unwrap()),
             &hex::decode(test_case.ikm).unwrap(),
-        );
+        )?;
 
         let okm = expander.expand(&[&hex::decode(test_case.info).unwrap()], test_case.len)?;
 

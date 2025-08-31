@@ -1,9 +1,10 @@
-use crate::error::Unspecified;
+use crate::Error;
 use alloc::{boxed::Box, vec::Vec};
 use zeroize::Zeroize;
 
 /// Available HKDF algorithms.
 #[non_exhaustive]
+#[derive(Debug, Clone, Copy)]
 pub enum Algorithm {
     /// HKDF using HMAC-SHA-256.
     Sha256,
@@ -27,7 +28,7 @@ pub trait Provider: Send + Sync {
         algorithm: Algorithm,
         salt: Option<&[u8]>,
         secret: &[u8],
-    ) -> Box<dyn Expander>;
+    ) -> Result<Box<dyn Expander>, Error>;
 
     /// Whether or not the HKDF algorithm is supported.
     fn is_algorithm_supported(&self, algorithm: Algorithm) -> bool;
@@ -41,7 +42,7 @@ pub trait Expander: Send + Sync {
     /// Where `L` is `output.len()`
     ///
     /// Returns Err("output length error") if `L` is larger than `255*HashLen`.
-    fn expand(&self, info: &[&[u8]], len: usize) -> Result<Okm, Unspecified>;
+    fn expand(&self, info: &[&[u8]], len: usize) -> Result<Okm, Error>;
 }
 
 /// Key derived using `HKDF`.
