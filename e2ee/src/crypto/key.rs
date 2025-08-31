@@ -1,9 +1,11 @@
-use crate::error::Unspecified;
+use crate::Error;
 use alloc::{boxed::Box, vec::Vec};
+use core::any::Any;
 use zeroize::Zeroize;
 
 /// Available key curve algorithms.
 #[non_exhaustive]
+#[derive(Debug, Clone, Copy)]
 pub enum Algorithm {
     /// ECDH using the NSA Suite B P-256 (secp256r1) curve.
     EcdhP256,
@@ -18,13 +20,24 @@ pub enum Algorithm {
 /// Mechanism for loading/generating keys.
 pub trait Provider: Send + Sync {
     /// Loads private key from binary.
-    fn load_private_key(&self, key_der: &[u8]) -> Box<dyn PrivateKey>;
+    fn load_private_key(
+        &self,
+        algorithm: Algorithm,
+        key_der: &[u8],
+    ) -> Result<Box<dyn PrivateKey>, Error>;
 
     /// Loads public key from binary.
-    fn load_public_key(&self, key_der: &[u8]) -> Box<dyn PublicKey>;
+    fn load_public_key(
+        &self,
+        algorithm: Algorithm,
+        key_der: Vec<u8>,
+    ) -> Result<Box<dyn PublicKey>, Error>;
 
     /// Generates an ephemeral private key.
-    fn generate_ephemeral_private_key(&self) -> Box<dyn EphemeralPrivateKey>;
+    fn generate_ephemeral_private_key(
+        &self,
+        algorithm: Algorithm,
+    ) -> Result<Box<dyn EphemeralPrivateKey>, Error>;
 
     /// Whether or not the curve algorithm is supported.
     fn is_curve_supported(&self, algorithm: Algorithm) -> bool;
@@ -32,15 +45,15 @@ pub trait Provider: Send + Sync {
 
 /// A public key can be used for key agreement or digital signature
 /// verification.
-pub trait PublicKey {
+pub trait PublicKey: Any {
+    /// The algorithm for the public key.
+    fn algorithm(&self) -> Algorithm;
+
     /// Used to standartize key agreement material across different
     /// [`CryptoProvider`]s.
     ///
     /// [`CryptoProvider`]: super::CryptoProvider
-    fn as_der(&self) -> &[u8];
-
-    /// The algorithm for the public key.
-    fn algorithm(&self) -> Algorithm;
+    fn as_der(&self) -> Result<Vec<u8>, Error>;
 }
 
 /// A private key for key agreement and signing key generation. The signature
@@ -49,14 +62,17 @@ pub trait PublicKey {
 ///
 /// [`agree`]: PrivateKey::agree
 pub trait PrivateKey {
-    /// Converts private key into der.
-    fn as_der(&self) -> &[u8];
-
     /// DH key agreement.
-    fn agree(&self, peer_public_key: Box<dyn PublicKey>) -> Result<SharedSecret, Unspecified>;
+    fn agree(&self, peer_public_key: Box<dyn PublicKey>) -> Result<SharedSecret, Error>;
+
+    /// Computes public key of the private key.
+    fn compute_public_key(&self) -> Result<Box<dyn PublicKey>, Error>;
 
     /// The algorithm for the private key.
     fn algorithm(&self) -> Algorithm;
+
+    /// Converts private key into der.
+    fn as_der(&self) -> Result<Vec<u8>, Error>;
 }
 
 /// An ephemeral private key for use (only) with ephemeral key agreement. The
@@ -69,7 +85,10 @@ pub trait EphemeralPrivateKey {
     fn agree_ephemeral(
         self: Box<Self>,
         peer_public_key: Box<dyn PublicKey>,
-    ) -> Result<SharedSecret, Unspecified>;
+    ) -> Result<SharedSecret, Error>;
+
+    /// Computes public key of the ephemeral key.
+    fn compute_public_key(&self) -> Result<Box<dyn PublicKey>, Error>;
 
     /// The algorithm for the ephemeral private key.
     fn algorithm(&self) -> Algorithm;

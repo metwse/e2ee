@@ -1,8 +1,10 @@
+use crate::Error;
 use alloc::{boxed::Box, vec::Vec};
 use zeroize::Zeroize;
 
 /// Hash functions.
 #[non_exhaustive]
+#[derive(Debug, Clone, Copy)]
 pub enum Algorithm {
     /// SHA3-256 as specified in FIPS 202.
     Sha3_256,
@@ -23,13 +25,13 @@ pub enum Algorithm {
 /// Describes a cryptographic hash functions.
 pub trait Provider: Send + Sync {
     /// Start an incremental hash computation.
-    fn start(&self, algorithm: Algorithm) -> Box<dyn Context>;
+    fn start(&self, algorithm: Algorithm) -> Result<Box<dyn Context>, Error>;
 
     /// Start an incremental hash computation.
-    fn hash(&self, algorithm: Algorithm, data: &[u8]) -> Output;
+    fn hash(&self, algorithm: Algorithm, data: &[u8]) -> Result<Output, Error>;
 
     /// Whether the hash function is supported by the provider.
-    fn is_function_supported(&self) -> bool;
+    fn is_function_supported(&self, algorithm: Algorithm) -> bool;
 }
 
 /// Incrementally computed hash.
