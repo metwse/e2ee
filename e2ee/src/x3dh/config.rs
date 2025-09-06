@@ -1,6 +1,6 @@
 use super::ConfigBuilder;
 use crate::{
-    crypto::{CryptoProvider, hkdf, key},
+    crypto::{CryptoProvider, hash, hkdf, key},
     sync::Arc,
 };
 use alloc::vec::Vec;
@@ -11,8 +11,10 @@ pub struct Config {
     pub curve: Vec<key::Algorithm>,
     /// List of supported key derivation functions, ordered by preference.
     pub hkdf: Vec<hkdf::Algorithm>,
+    /// List of supported hash functions, ordered by preference.
+    pub hash: Vec<hash::Algorithm>,
 
-    pub(crate) provider: Arc<CryptoProvider>,
+    pub(crate) _provider: Arc<CryptoProvider>,
 }
 
 impl Config {
@@ -29,6 +31,7 @@ impl Config {
     pub fn builder_with_provider(provider: Arc<CryptoProvider>) -> ConfigBuilder {
         ConfigBuilder {
             curve: None,
+            hash: None,
             hkdf: None,
             provider,
         }

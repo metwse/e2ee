@@ -1,4 +1,4 @@
-use crate::crypto::{CryptoProvider, hkdf, key};
+use crate::crypto::{CryptoProvider, hash, hkdf, key};
 use crate::sync::Arc;
 use alloc::vec::Vec;
 
@@ -10,6 +10,7 @@ use super::Config;
 pub struct ConfigBuilder {
     pub(crate) curve: Option<Vec<key::Algorithm>>,
     pub(crate) hkdf: Option<Vec<hkdf::Algorithm>>,
+    pub(crate) hash: Option<Vec<hash::Algorithm>>,
 
     pub(crate) provider: Arc<CryptoProvider>,
 }
@@ -39,6 +40,18 @@ impl ConfigBuilder {
         self
     }
 
+    /// Specifies which key derivation algorithms are supported by the peer.
+    pub fn with_hash(mut self, hash: Vec<hash::Algorithm>) -> Self {
+        for c in hash.iter() {
+            if !self.provider.hash.is_function_supported(*c) {
+                panic!("{c:?} is not supported by the provider.");
+            }
+        }
+
+        self.hash = Some(hash);
+        self
+    }
+
     /// Sets algorithms with safe defaults.
     pub fn with_recommended_algorithms(self) -> Self {
         self.with_hkdf(alloc::vec![
@@ -51,6 +64,15 @@ impl ConfigBuilder {
             key::Algorithm::EcdhP384,
             key::Algorithm::EcdhP384
         ])
+        .with_hash(alloc::vec![
+            hash::Algorithm::Sha256,
+            hash::Algorithm::Sha512,
+            hash::Algorithm::Sha224,
+            hash::Algorithm::Sha384,
+            hash::Algorithm::Sha3_256,
+            hash::Algorithm::Sha3_512,
+            hash::Algorithm::Sha3_384,
+        ])
     }
 
     /// Finish builder to peer config.
@@ -60,7 +82,8 @@ impl ConfigBuilder {
             hkdf: self
                 .hkdf
                 .expect("No key derivation function has been specified."),
-            provider: self.provider,
+            hash: self.hash.expect("No key hash funciton has been specified."),
+            _provider: self.provider,
         })
     }
 }
