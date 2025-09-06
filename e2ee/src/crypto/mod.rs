@@ -35,6 +35,33 @@ impl CryptoProvider {
     pub fn get_default() -> Option<&'static Arc<Self>> {
         static_default::get_default()
     }
+
+    pub(crate) fn get_default_or_install_from_crate_features() -> &'static Arc<Self> {
+        if let Some(provider) = static_default::get_default() {
+            return provider;
+        }
+
+        let provider = Self::from_crate_features().expect(
+            r#"
+Could not determine process-level CryptoProvider from e2ee crate features.
+Call CryptoProvider::install_default() before this point to select a provider manually.
+            "#,
+        );
+
+        provider.install_default().ok();
+
+        Self::get_default().unwrap()
+    }
+
+    fn from_crate_features() -> Option<Self> {
+        #[cfg(feature = "aws_lc_rs")]
+        {
+            return Some(aws_lc_rs::default_provider());
+        }
+
+        #[allow(unreachable_code)]
+        None
+    }
 }
 
 mod static_default {

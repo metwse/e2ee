@@ -8,5 +8,7 @@ default-members = [
 resolver = "2"
 
 [workspace.dependencies]
-ring = "0.17"
+aws-lc-rs = "1.13"
 once_cell = { version = "1", features = ["alloc", "race"], default-features = false }
+zeroize = "1.8"
+hex = "0.4"
