@@ -1,0 +1,26 @@
+[package]
+name = "e2ee-provider"
+version = "0.0.0"
+edition = "2024"
+license = "MIT"
+readme = "../README.md"
+description = "Crypto provider interface for e2ee"
+homepage = "https://github.com/metwse/e2ee"
+repository = "https://github.com/metwse/e2ee"
+categories = ["cryptography"]
+keywords = ["crypto"]
+
+[package.metadata.docs.rs]
+default = ["aws_lc_rs"]
+
+features = ["aws_lc_rs", "openssl"]
+rustdoc-args = ["--cfg", "docsrs"]
+
+[features]
+aws_lc_rs = ["dep:aws-lc-rs"]
+openssl = ["dep:openssl"]
+
+[dependencies]
+aws-lc-rs = { workspace = true, optional = true }
+openssl = { workspace = true, optional = true }
+zeroize = { workspace = true }
