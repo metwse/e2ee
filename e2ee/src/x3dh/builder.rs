@@ -60,9 +60,9 @@ impl ConfigBuilder {
             hkdf::Algorithm::Sha384
         ])
         .with_curve(alloc::vec![
-            key::Algorithm::EcdhP521,
-            key::Algorithm::EcdhP384,
-            key::Algorithm::EcdhP384
+            key::Algorithm::EcP521,
+            key::Algorithm::EcP384,
+            key::Algorithm::EcP384
         ])
         .with_hash(alloc::vec![
             hash::Algorithm::Sha256,

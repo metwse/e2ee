@@ -23,6 +23,29 @@ pub enum Curve {
     Curve448 = 1035,
 }
 
+/// Serialized private key DER.
+pub enum PrivateKeyDer {
+    /// PKCS #8 private key der v1 as described in
+    /// [RFC 5208](https://datatracker.ietf.org/doc/html/rfc5208).
+    Pkcs8V1Key(Vec<u8>),
+    /// PKCS #8 private key der v2 as described in
+    /// [RFC 5208](https://datatracker.ietf.org/doc/html/rfc5208).
+    Pkcs8V2Key(Vec<u8>),
+    /// Elliptic curve private key structure as described in
+    /// [RFC 5915](https://datatracker.ietf.org/doc/html/rfc5915).
+    EcPrivateKey(Vec<u8>),
+}
+
+/// Serialized public key DER.
+pub enum PublicKeyDer {
+    /// Internet X.509 public key as described in
+    /// [RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280).
+    X509Key(Vec<u8>),
+    /// Elliptic curve public key structure as described in
+    /// [RFC 5480](https://datatracker.ietf.org/doc/html/rfc5480).
+    EcPublicKey(Vec<u8>),
+}
+
 impl TryFrom<u32> for Curve {
     type Error = Error;
 
@@ -41,18 +64,10 @@ impl TryFrom<u32> for Curve {
 /// Mechanism for loading or generating keys.
 pub trait KeyProvider {
     /// Loads private key from binary.
-    fn load_private_key(
-        &self,
-        algorithm: Curve,
-        key_der: &[u8],
-    ) -> Result<Box<dyn PrivateKey>, Error>;
+    fn load_private_key(&self, key_der: PrivateKeyDer) -> Result<Box<dyn PrivateKey>, Error>;
 
     /// Loads public key from binary.
-    fn load_public_key(
-        &self,
-        algorithm: Curve,
-        key_der: &[u8],
-    ) -> Result<Box<dyn PublicKey>, Error>;
+    fn load_public_key(&self, key_der: PublicKeyDer) -> Result<Box<dyn PublicKey>, Error>;
 
     /// Generates an ephemeral private key.
     fn generate_ephemeral_private_key(
@@ -77,6 +92,9 @@ pub trait PrivateKey {
 
     /// Signs `message` using the selected digest function.
     fn sign(&self, message: &[u8], digest: Box<dyn Hash>) -> Result<Vec<u8>, Error>;
+
+    /// Serializes underlying private key as DER.
+    fn as_der(&self) -> PrivateKeyDer;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
@@ -106,6 +124,9 @@ pub trait PublicKey {
     /// Verify the `signature` signature of `message`.
     fn sign(&self, message: &[u8], digest: i32) -> Result<Vec<u8>, Error>;
 
+    /// Serializes underlying public key as DER.
+    fn as_der(&self) -> PublicKeyDer;
+
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
 }
@@ -124,5 +145,23 @@ impl Drop for SharedSecret {
 impl AsRef<[u8]> for SharedSecret {
     fn as_ref(&self) -> &[u8] {
         &self.buf
+    }
+}
+
+impl Drop for PrivateKeyDer {
+    fn drop(&mut self) {
+        match self {
+            Self::Pkcs8V1Key(key) | Self::Pkcs8V2Key(key) | Self::EcPrivateKey(key) => {
+                key.zeroize()
+            }
+        }
+    }
+}
+
+impl Drop for PublicKeyDer {
+    fn drop(&mut self) {
+        match self {
+            Self::X509Key(key) | Self::EcPublicKey(key) => key.zeroize(),
+        }
     }
 }

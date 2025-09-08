@@ -24,6 +24,10 @@ pub mod provider;
 /// Error reporting.
 mod error;
 
+/// aws-lc-rs based `CryptoProvider`.
+#[cfg(feature = "aws_lc_rs")]
+pub mod aws_lc_rs;
+
 pub use error::Error;
 pub use key::KeyProvider;
 pub use provider::{HashProvider, HkdfProvider};

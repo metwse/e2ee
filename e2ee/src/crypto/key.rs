@@ -7,14 +7,14 @@ use zeroize::Zeroize;
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy)]
 pub enum Algorithm {
-    /// ECDH using the NSA Suite B P-256 (secp256r1) curve.
-    EcdhP256,
-    /// ECDH using the NSA Suite B P-384 (secp384r1) curve.
-    EcdhP384,
-    /// ECDH using the NSA Suite B P-521 (secp521r1) curve.
-    EcdhP521,
-    /// X25519 (ECDH using Curve25519) as described in RFC 7748.
-    X25519,
+    /// NSA Suite B P-256 (secp256r1) curve.
+    EcP256,
+    /// NSA Suite B P-384 (secp384r1) curve.
+    EcP384,
+    /// NSA Suite B P-521 (secp521r1) curve.
+    EcP521,
+    /// Curve25519
+    Curve25519,
 }
 
 /// Mechanism for loading/generating keys.

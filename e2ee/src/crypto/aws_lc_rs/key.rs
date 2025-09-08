@@ -11,9 +11,9 @@ use core::any::Any;
 macro_rules! map {
     ($algorithm:expr) => {
         match $algorithm {
-            key::Algorithm::EcdhP256 => &agreement::ECDH_P256,
-            key::Algorithm::EcdhP384 => &agreement::ECDH_P384,
-            key::Algorithm::EcdhP521 => &agreement::ECDH_P521,
+            key::Algorithm::EcP256 => &agreement::ECDH_P256,
+            key::Algorithm::EcP384 => &agreement::ECDH_P384,
+            key::Algorithm::EcP521 => &agreement::ECDH_P521,
             _ => return Err(Error::UnsupportedAlgorithm),
         }
     };
@@ -22,7 +22,7 @@ macro_rules! map {
 fn is_curve_supported(algorithm: key::Algorithm) -> bool {
     matches!(
         algorithm,
-        key::Algorithm::EcdhP256 | key::Algorithm::EcdhP384 | key::Algorithm::EcdhP521
+        key::Algorithm::EcP256 | key::Algorithm::EcP384 | key::Algorithm::EcP521
     )
 }
 
