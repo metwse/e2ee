@@ -1,8 +1,5 @@
 //! `e2ee-provider` unifies the function interfaces of different cryptographic
 //! libraries into a single abstraction.
-//!
-//! It also provides fallback mechanisms: if one provider does not support a
-//! particular function, another available provider will be used.
 
 #![forbid(unsafe_code, unused_must_use)]
 #![warn(clippy::all, clippy::cargo, missing_docs)]
@@ -12,19 +9,31 @@
 
 extern crate alloc;
 
-/// Elliptic Curve
-pub mod ec;
-
 /// Key provider interface.
 pub mod key;
+
+/// Hash provider interface.
+pub mod digest;
+
+/// HMAC-based key derivation interface.
+pub mod hkdf;
+
+/// Provider interface.
+pub mod provider;
 
 /// Error reporting.
 mod error;
 
 pub use error::Error;
+pub use key::KeyProvider;
+pub use provider::{HashProvider, HkdfProvider};
 
-/// Internal `sync` module aliases the `Arc` implementation to allow
-/// replacement of it in one centrral location.
-mod sync {
-    pub(crate) type Arc<T> = alloc::sync::Arc<T>;
+/// Cryptographic functions used by e2ee.
+pub struct CryptoProvider {
+    /// HMAC-based key derivation.
+    pub hkdf: &'static dyn HkdfProvider,
+    /// Hash functions.
+    pub hash: &'static dyn HashProvider,
+    /// Key provider.
+    pub key: &'static dyn KeyProvider,
 }
