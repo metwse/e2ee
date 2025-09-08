@@ -2,37 +2,42 @@ use super::AwsLcRs;
 use crate::{Error, KeyProvider, key::*};
 use alloc::boxed::Box;
 
-mod agreement;
+/// DH key agreement using aws-lc-rs.
+pub mod agreement;
 
-mod signature;
+/// Cryptographic signature verification.
+pub mod signature;
 
 impl KeyProvider for AwsLcRs {
-    fn load_private_key(&self, _key_der: PrivateKeyDer) -> Result<Box<dyn PrivateKey>, Error> {
+    fn load_private_key(&self, _key_bytes: PrivateKeyBytes) -> Result<Box<dyn PrivateKey>, Error> {
         todo!()
     }
 
-    fn load_signing_key(&self, _key_der: PrivateKeyDer) -> Result<Box<dyn SingingKey>, Error> {
+    fn load_signing_key(&self, _key_bytes: PrivateKeyBytes) -> Result<Box<dyn SingingKey>, Error> {
         todo!()
     }
 
     fn load_identity_private_key(
         &self,
-        _key_der: PrivateKeyDer,
+        _key_bytes: PrivateKeyBytes,
     ) -> Result<Box<dyn IdentityPrivateKey>, Error> {
         todo!()
     }
 
-    fn load_public_key(&self, _key_der: PublicKeyDer) -> Result<Box<dyn PublicKey>, Error> {
+    fn load_public_key(&self, _key_bytes: PublicKeyBytes) -> Result<Box<dyn PublicKey>, Error> {
         todo!()
     }
 
-    fn load_verifying_key(&self, _key_der: PublicKeyDer) -> Result<Box<dyn VerifyingKey>, Error> {
+    fn load_verifying_key(
+        &self,
+        _key_bytes: PublicKeyBytes,
+    ) -> Result<Box<dyn VerifyingKey>, Error> {
         todo!()
     }
 
     fn load_identity_public_key(
         &self,
-        _key_der: PrivateKeyDer,
+        _key_bytes: PublicKeyBytes,
     ) -> Result<Box<dyn IdentityPublicKey>, Error> {
         todo!()
     }

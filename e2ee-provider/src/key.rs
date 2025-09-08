@@ -38,54 +38,58 @@ impl TryFrom<u32> for Curve {
     }
 }
 
-/// Serialized private key DER.
-pub enum PrivateKeyDer {
-    /// PKCS #8 private key der v1 as described in
+/// Serialized private key bytes.
+#[derive(Clone)]
+pub enum PrivateKeyBytes {
+    /// PKCS #8 private key DER v1 as described in
     /// [RFC 5208](https://datatracker.ietf.org/doc/html/rfc5208).
-    Pkcs8V1Key(Vec<u8>),
-    /// PKCS #8 private key der v2 as described in
+    Pkcs8V1KeyDer(Vec<u8>),
+    /// PKCS #8 private key DER v2 as described in
     /// [RFC 5208](https://datatracker.ietf.org/doc/html/rfc5208).
-    Pkcs8V2Key(Vec<u8>),
+    Pkcs8V2KeyDer(Vec<u8>),
     /// Elliptic curve private key structure as described in
     /// [RFC 5915](https://datatracker.ietf.org/doc/html/rfc5915).
-    EcPrivateKey(Vec<u8>),
+    EcPrivateKeyDer(Vec<u8>),
+    /// Curve25519 seed encoded as a big-endian fixed-length integer.
+    Curve25519Seed(Vec<u8>),
 }
 
-/// Serialized public key DER.
+/// Serialized public key bytes.
 #[derive(Clone)]
-pub enum PublicKeyDer {
+pub enum PublicKeyBytes {
     /// Internet X.509 public key as described in
     /// [RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280).
-    X509Key(Vec<u8>),
+    X509KeyDer(Vec<u8>),
     /// Elliptic curve public key structure as described in
     /// [RFC 5480](https://datatracker.ietf.org/doc/html/rfc5480).
-    EcPublicKey(Vec<u8>),
+    EcPublicKeyDer(Vec<u8>),
 }
 
 /// Mechanism for loading or generating keys.
 pub trait KeyProvider {
     /// Loads private key from binary.
-    fn load_private_key(&self, key_der: PrivateKeyDer) -> Result<Box<dyn PrivateKey>, Error>;
+    fn load_private_key(&self, key_bytes: PrivateKeyBytes) -> Result<Box<dyn PrivateKey>, Error>;
 
     /// Loads signing key from binary.
-    fn load_signing_key(&self, key_der: PrivateKeyDer) -> Result<Box<dyn SingingKey>, Error>;
+    fn load_signing_key(&self, key_bytes: PrivateKeyBytes) -> Result<Box<dyn SingingKey>, Error>;
 
     /// Loads identity (signature + agreement) private key from binary.
     fn load_identity_private_key(
         &self,
-        key_der: PrivateKeyDer,
+        key_bytes: PrivateKeyBytes,
     ) -> Result<Box<dyn IdentityPrivateKey>, Error>;
 
     /// Loads public key from binary.
-    fn load_public_key(&self, key_der: PublicKeyDer) -> Result<Box<dyn PublicKey>, Error>;
+    fn load_public_key(&self, key_bytes: PublicKeyBytes) -> Result<Box<dyn PublicKey>, Error>;
 
     /// Loads signature verification public key from binary.
-    fn load_verifying_key(&self, key_der: PublicKeyDer) -> Result<Box<dyn VerifyingKey>, Error>;
+    fn load_verifying_key(&self, key_bytes: PublicKeyBytes)
+    -> Result<Box<dyn VerifyingKey>, Error>;
 
     /// Loads identity (signature + agreement) private key from binary.
     fn load_identity_public_key(
         &self,
-        key_der: PrivateKeyDer,
+        key_bytes: PublicKeyBytes,
     ) -> Result<Box<dyn IdentityPublicKey>, Error>;
 
     /// Generates an ephemeral private key.
@@ -109,8 +113,8 @@ pub trait PrivateKey {
     /// Computes public key of the private key.
     fn compute_public_key(&self) -> Result<Box<dyn PublicKey>, Error>;
 
-    /// Serializes underlying private key as DER.
-    fn as_der(&self) -> &PrivateKeyDer;
+    /// Serializes underlying private key as bytes.
+    fn to_bytes(&self) -> PrivateKeyBytes;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
@@ -124,8 +128,8 @@ pub trait SingingKey {
     /// Signs `message` using the selected digest function.
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error>;
 
-    /// Serializes underlying private key as DER.
-    fn as_der(&self) -> &PrivateKeyDer;
+    /// Serializes underlying private key as bytes.
+    fn to_bytes(&self) -> PrivateKeyBytes;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
@@ -154,8 +158,8 @@ pub trait EphemeralPrivateKey {
 
 /// A public key can be used for key agreement.
 pub trait PublicKey {
-    /// Serializes underlying public key as DER.
-    fn as_der(&self) -> &PublicKeyDer;
+    /// Bytes constructed public key.
+    fn to_bytes(&self) -> PublicKeyBytes;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
@@ -167,7 +171,7 @@ pub trait VerifyingKey {
     fn verify(&self, message: &[u8], signature: &[u8]) -> bool;
 
     /// Serializes underlying public key as DER.
-    fn as_der(&self) -> &PublicKeyDer;
+    fn as_der(&self) -> &PublicKeyBytes;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
@@ -193,36 +197,40 @@ impl AsRef<[u8]> for SharedSecret {
     }
 }
 
-impl Drop for PrivateKeyDer {
+impl Drop for PrivateKeyBytes {
     fn drop(&mut self) {
         match self {
-            Self::Pkcs8V1Key(key) | Self::Pkcs8V2Key(key) | Self::EcPrivateKey(key) => {
-                key.zeroize()
-            }
+            Self::Pkcs8V1KeyDer(key)
+            | Self::Pkcs8V2KeyDer(key)
+            | Self::EcPrivateKeyDer(key)
+            | Self::Curve25519Seed(key) => key.zeroize(),
         }
     }
 }
 
-impl AsRef<[u8]> for PrivateKeyDer {
+impl AsRef<[u8]> for PrivateKeyBytes {
     fn as_ref(&self) -> &[u8] {
         match self {
-            Self::Pkcs8V1Key(key) | Self::Pkcs8V2Key(key) | Self::EcPrivateKey(key) => key,
+            Self::Pkcs8V1KeyDer(key)
+            | Self::Pkcs8V2KeyDer(key)
+            | Self::EcPrivateKeyDer(key)
+            | Self::Curve25519Seed(key) => key,
         }
     }
 }
 
-impl Drop for PublicKeyDer {
+impl Drop for PublicKeyBytes {
     fn drop(&mut self) {
         match self {
-            Self::X509Key(key) | Self::EcPublicKey(key) => key.zeroize(),
+            Self::X509KeyDer(key) | Self::EcPublicKeyDer(key) => key.zeroize(),
         }
     }
 }
 
-impl AsRef<[u8]> for PublicKeyDer {
+impl AsRef<[u8]> for PublicKeyBytes {
     fn as_ref(&self) -> &[u8] {
         match self {
-            Self::X509Key(key) | Self::EcPublicKey(key) => key,
+            Self::X509KeyDer(key) | Self::EcPublicKeyDer(key) => key,
         }
     }
 }
