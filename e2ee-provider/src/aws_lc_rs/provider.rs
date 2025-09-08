@@ -1,35 +1,19 @@
 use super::AwsLcRs;
 use crate::{
     Error, HashProvider, HkdfProvider, KeyProvider,
-    digest::{self, Hash},
     hkdf::{self, Hkdf},
     key::{Curve, EphemeralPrivateKey, PrivateKey, PrivateKeyDer, PublicKey, PublicKeyDer},
     provider::Provider,
 };
-use alloc::{boxed::Box, vec::Vec};
-
-impl Provider<digest::Algorithm, Box<dyn Hash>> for AwsLcRs {
-    fn get(&self, _algorithm: digest::Algorithm) -> Option<Box<dyn Hash>> {
-        todo!()
-    }
-
-    fn supported_algorithms(&self) -> Vec<digest::Algorithm> {
-        todo!()
-    }
-
-    fn is_algorithm_supported(&self, _algorithm: digest::Algorithm) -> bool {
-        todo!()
-    }
-}
 
 impl HashProvider for AwsLcRs {}
 
-impl Provider<hkdf::Algorithm, Box<dyn Hkdf>> for AwsLcRs {
-    fn get(&self, _algorithm: hkdf::Algorithm) -> Option<Box<dyn Hkdf>> {
+impl Provider<hkdf::Algorithm, &'static dyn Hkdf> for AwsLcRs {
+    fn get(&self, _algorithm: hkdf::Algorithm) -> Option<&'static dyn Hkdf> {
         todo!()
     }
 
-    fn supported_algorithms(&self) -> Vec<hkdf::Algorithm> {
+    fn supported_algorithms(&self) -> &'static [hkdf::Algorithm] {
         todo!()
     }
 

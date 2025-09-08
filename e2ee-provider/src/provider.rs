@@ -1,5 +1,4 @@
 use crate::{digest, hkdf};
-use alloc::{boxed::Box, vec::Vec};
 
 /// A provider that maps algorithms to cryptographic handlers.
 ///
@@ -10,14 +9,14 @@ pub trait Provider<A, T> {
     fn get(&self, algorithm: A) -> Option<T>;
 
     /// Returns all supported algorithms in preference order.
-    fn supported_algorithms(&self) -> Vec<A>;
+    fn supported_algorithms(&self) -> &'static [A];
 
     /// Wheter or not the algorithm is supported.
     fn is_algorithm_supported(&self, algorithm: A) -> bool;
 }
 
 /// Provides hash functions required by e2ee.
-pub trait HashProvider: Provider<digest::Algorithm, Box<dyn digest::Hash>> {}
+pub trait HashProvider: Provider<digest::Algorithm, &'static dyn digest::Hash> {}
 
 /// Provides key derivation functions required by e2ee.
-pub trait HkdfProvider: Provider<hkdf::Algorithm, Box<dyn hkdf::Hkdf>> {}
+pub trait HkdfProvider: Provider<hkdf::Algorithm, &'static dyn hkdf::Hkdf> {}

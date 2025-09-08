@@ -24,3 +24,4 @@ openssl = ["dep:openssl"]
 aws-lc-rs = { workspace = true, optional = true }
 openssl = { workspace = true, optional = true }
 zeroize = { workspace = true }
+paste = { workspace = true }

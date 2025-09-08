@@ -47,8 +47,14 @@ pub trait Hash {
     /// Start an incremental hash computation.
     fn start(&self) -> Box<dyn Context>;
 
+    /// Output length of hash function.
+    fn output_len(&self) -> usize;
+
     /// Returns the digest of data.
     fn hash(&self, data: &[u8]) -> Output;
+
+    /// Algorithm of the hash function.
+    fn algorithm(&self) -> Algorithm;
 }
 
 /// Incrementally computed hash.
@@ -58,6 +64,9 @@ pub trait Context {
 
     /// Terminate and finish the computation, returning the resulting output.
     fn finish(self: Box<Self>) -> Output;
+
+    /// Algorithm being used in incremental hash computation.
+    fn algorithm(&self) -> Algorithm;
 }
 
 /// Output of a hash function.
