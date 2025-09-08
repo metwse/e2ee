@@ -39,62 +39,60 @@ impl Provider<Algorithm, &'static dyn Hash> for AwsLcRs {
     }
 
     fn is_algorithm_supported(&self, algorithm: Algorithm) -> bool {
-        self.get(algorithm).is_some()
+        algorithm != Algorithm::Sha3_224
     }
 }
 
 macro_rules! impl_hash_functions {
     ($($alg:ident),*) => {
-        $(
-            paste::paste! {
-                #[doc = "Hash digest using " $alg "."]
-                pub struct [<$alg Digest>];
+        $(paste::paste! {
+            #[doc = "Hash digest using " $alg "."]
+            pub struct [<$alg Digest>];
 
-                #[doc = "Incremental " $alg " hash computation."]
-                struct [<$alg Context>] {
-                    ctx: digest::Context
-                }
+            #[doc = "Incremental " $alg " hash computation."]
+            struct [<$alg Context>] {
+                ctx: digest::Context
+            }
 
-                impl Hash for [<$alg Digest>] {
-                    fn hash(&self, data: &[u8]) -> Output {
-                        Output {
-                            buf: digest::digest(&digest::[<$alg:upper>], data)
-                                .as_ref().into(),
-                        }
-                    }
-
-                    fn start(&self) -> Box<dyn Context> {
-                        Box::new([<$alg Context>] {
-                            ctx: digest::Context::new(&digest::[<$alg:upper>])
-                        })
-                    }
-
-                    fn output_len(&self) -> usize {
-                        [<$alg:upper _OUTPUT_LEN>]
-                    }
-
-                    fn algorithm(&self) -> Algorithm {
-                        Algorithm::$alg
+            impl Hash for [<$alg Digest>] {
+                fn hash(&self, data: &[u8]) -> Output {
+                    Output {
+                        buf: digest::digest(&digest::[<$alg:upper>], data)
+                            .as_ref().into(),
                     }
                 }
 
-                impl Context for [<$alg Context>] {
-                    fn update(&mut self, data: &[u8]) {
-                        self.ctx.update(data);
-                    }
+                fn start(&self) -> Box<dyn Context> {
+                    Box::new([<$alg Context>] {
+                        ctx: digest::Context::new(&digest::[<$alg:upper>])
+                    })
+                }
 
-                    fn finish(self: Box<Self>) -> Output {
-                        Output {
-                            buf: self.ctx.finish().as_ref().into()
-                        }
-                    }
+                fn output_len(&self) -> usize {
+                    [<$alg:upper _OUTPUT_LEN>]
+                }
 
-                    fn algorithm(&self) -> Algorithm {
-                        Algorithm::$alg
-                    }
+                fn algorithm(&self) -> Algorithm {
+                    Algorithm::$alg
                 }
             }
-        )*
+
+            impl Context for [<$alg Context>] {
+                fn update(&mut self, data: &[u8]) {
+                    self.ctx.update(data);
+                }
+
+                fn finish(self: Box<Self>) -> Output {
+                    Output {
+                        buf: self.ctx.finish().as_ref().into()
+                    }
+                }
+
+                fn algorithm(&self) -> Algorithm {
+                    Algorithm::$alg
+                }
+            }
+        })*
     };
 }
 

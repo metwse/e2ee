@@ -13,3 +13,4 @@ openssl = "0.10"
 once_cell = { version = "1", features = ["alloc", "race"], default-features = false }
 zeroize = "1.8"
 hex = "0.4"
+paste = "1"
