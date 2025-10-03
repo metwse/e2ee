@@ -42,16 +42,25 @@ impl TryFrom<u32> for Algorithm {
     }
 }
 
+impl Algorithm {
+    /// Returns output length of the hash function.
+    pub fn output_len(&self) -> usize {
+        match self {
+            Self::Sha224 | Self::Sha3_224 => 28,
+            Self::Sha256 | Self::Sha3_256 => 32,
+            Self::Sha384 | Self::Sha3_384 => 48,
+            Self::Sha512 | Self::Sha3_512 => 64
+        }
+    }
+}
+
 /// A cryptographic hash function.
 pub trait Hash {
     /// Starts an incremental hash computation.
     fn start(&self) -> Box<dyn Context>;
 
-    /// Returns output length of the hash function.
-    fn output_len(&self) -> usize;
-
     /// Computes and returns the digest of the given data.
-    fn hash(&self, data: &[u8]) -> Output;
+    fn hash(&self, data: &[u8]) -> Digest;
 
     /// Returns the digest of data.
     fn algorithm(&self) -> Algorithm;
@@ -63,24 +72,24 @@ pub trait Context {
     fn update(&mut self, data: &[u8]);
 
     /// Finalizes the computation and returns the resulting digest.
-    fn finish(self: Box<Self>) -> Output;
+    fn finish(self: Box<Self>) -> Digest;
 
     /// Algorithm used in this hash computation.
     fn algorithm(&self) -> Algorithm;
 }
 
 /// The output (digest) of a hash function.
-pub struct Output {
+pub struct Digest {
     pub(crate) buf: Vec<u8>,
 }
 
-impl Drop for Output {
+impl Drop for Digest {
     fn drop(&mut self) {
         self.buf.zeroize();
     }
 }
 
-impl AsRef<[u8]> for Output {
+impl AsRef<[u8]> for Digest {
     fn as_ref(&self) -> &[u8] {
         &self.buf
     }

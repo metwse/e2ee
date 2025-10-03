@@ -184,7 +184,7 @@ pub trait VerifyingKey {
     fn algorithm(&self) -> Curve;
 }
 
-/// A private key capable of both signing: and key agreement.
+/// A public key capable of both signing and key agreement.
 pub trait IdentityPublicKey: PublicKey + VerifyingKey {}
 
 /// Result of a key agreement.
