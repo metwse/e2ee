@@ -1,5 +1,5 @@
 use super::AwsLcRs;
-use crate::{key::*, Error};
+use crate::{Error, key::*};
 use alloc::{borrow::ToOwned, boxed::Box};
 use aws_lc_rs::{
     agreement,
@@ -51,22 +51,20 @@ impl PrivateKey for X25519PrivateKey {
             public_key
         };
 
-        if let Some(public_key) =
-            (&public_key_reloaded as &dyn Any).downcast_ref::<X25519PublicKey>()
-        {
-            agreement::agree(
-                &self.key,
-                &agreement::UnparsedPublicKey::new(&agreement::X25519, &public_key.bytes),
-                Error::Unspecified,
-                |okm| {
-                    Ok(SharedSecret {
-                        buf: okm.to_owned(),
-                    })
-                },
-            )
-        } else {
-            unreachable!()
-        }
+        let peer_public_key = (&public_key_reloaded as &dyn Any)
+            .downcast_ref::<X25519PublicKey>()
+            .expect("unreachable");
+
+        agreement::agree(
+            &self.key,
+            &agreement::UnparsedPublicKey::new(&agreement::X25519, &peer_public_key.bytes),
+            Error::Unspecified,
+            |okm| {
+                Ok(SharedSecret {
+                    buf: okm.to_owned(),
+                })
+            },
+        )
     }
 
     fn compute_public_key(&self) -> Result<Box<dyn PublicKey>, Error> {
@@ -79,11 +77,10 @@ impl PrivateKey for X25519PrivateKey {
     }
 
     fn to_bytes(self: Box<Self>) -> PrivateKeyBytes {
-        if let Ok(buf) = AsBigEndian::<Curve25519SeedBin<'static>>::as_be_bytes(&self.key) {
-            PrivateKeyBytes::Curve25519Seed((*buf).as_ref().to_vec())
-        } else {
-            unreachable!()
-        }
+        let be_bytes =
+            AsBigEndian::<Curve25519SeedBin<'static>>::as_be_bytes(&self.key).expect("unreachable");
+
+        PrivateKeyBytes::Curve25519Seed((*be_bytes).as_ref().to_vec())
     }
 
     fn algorithm(&self) -> Curve {
@@ -103,11 +100,9 @@ impl PublicKey for X25519PublicKey {
 
 impl PublicKey for SerializedX25519PublicKey {
     fn to_bytes(self: Box<Self>) -> PublicKeyBytes {
-        if let Ok(buf) = AsDer::<PublicKeyX509Der>::as_der(self.key.bytes()) {
-            PublicKeyBytes::X509KeyDer((*buf).as_ref().to_vec())
-        } else {
-            unreachable!()
-        }
+        let der = AsDer::<PublicKeyX509Der>::as_der(self.key.bytes()).expect("unreachable");
+
+        PublicKeyBytes::X509KeyDer((*der).as_ref().to_vec())
     }
 
     fn algorithm(&self) -> Curve {

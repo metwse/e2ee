@@ -35,7 +35,6 @@ pub trait Hkdf {
     fn extract(&self, salt: &[u8], secret: &[u8]) -> Box<dyn Expander>;
 }
 
-
 /// Implementation of `HKDF-Expand` using an internally stored pseudorandom key
 /// (PRK).
 pub trait Expander {

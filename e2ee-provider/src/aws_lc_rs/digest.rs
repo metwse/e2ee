@@ -1,6 +1,6 @@
 use super::AwsLcRs;
 use crate::{
-    digest::{Algorithm, Context, Hash, Digest},
+    digest::{Algorithm, Context, Digest, Hash},
     provider::Provider,
 };
 use alloc::boxed::Box;

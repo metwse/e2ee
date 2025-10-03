@@ -2,8 +2,11 @@ use super::AwsLcRs;
 use crate::{Error, KeyProvider, key::*};
 use alloc::boxed::Box;
 
-/// DH key agreement using aws-lc-rs.
-pub mod agreement;
+/// X25519 key agreement using aws-lc-rs.
+pub mod x25519;
+
+/// ECDH key agreement using aws-lc-rs.
+pub mod ecdh;
 
 /// Cryptographic signature verification.
 pub mod signature;

@@ -49,7 +49,7 @@ impl Algorithm {
             Self::Sha224 | Self::Sha3_224 => 28,
             Self::Sha256 | Self::Sha3_256 => 32,
             Self::Sha384 | Self::Sha3_384 => 48,
-            Self::Sha512 | Self::Sha3_512 => 64
+            Self::Sha512 | Self::Sha3_512 => 64,
         }
     }
 }
