@@ -119,7 +119,7 @@ pub trait PrivateKey {
     fn compute_public_key(&self) -> Result<Box<dyn PublicKey>, Error>;
 
     /// Serializes the private key into bytes.
-    fn to_bytes(&self) -> PrivateKeyBytes;
+    fn to_bytes(self: Box<Self>) -> PrivateKeyBytes;
 
     /// Returns the curve associated with this key.
     fn algorithm(&self) -> Curve;
@@ -134,7 +134,7 @@ pub trait SigningKey {
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error>;
 
     /// Serializes underlying private key into bytes.
-    fn to_bytes(&self) -> PrivateKeyBytes;
+    fn to_bytes(self: Box<Self>) -> PrivateKeyBytes;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
@@ -166,7 +166,7 @@ pub trait EphemeralPrivateKey {
 /// A public key for key agreement.
 pub trait PublicKey {
     /// Serializes the public key into bytes.
-    fn to_bytes(&self) -> PublicKeyBytes;
+    fn to_bytes(self: Box<Self>) -> PublicKeyBytes;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
@@ -177,8 +177,8 @@ pub trait VerifyingKey {
     /// Verifies the signature of the given `message`.
     fn verify(&self, message: &[u8], signature: &[u8]) -> bool;
 
-    /// Returns the underlying public key in DER format.
-    fn as_der(&self) -> &PublicKeyBytes;
+    /// Serializes the public key into bytes.
+    fn to_bytes(self: Box<Self>) -> PublicKeyBytes;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
