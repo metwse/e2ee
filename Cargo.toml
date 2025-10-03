@@ -8,7 +8,7 @@ default-members = [
 resolver = "2"
 
 [workspace.dependencies]
-aws-lc-rs = "1.13"
+aws-lc-rs = "1.14"
 openssl = "0.10"
 once_cell = { version = "1", features = ["alloc", "race"], default-features = false }
 zeroize = "1.8"

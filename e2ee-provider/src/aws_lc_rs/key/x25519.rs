@@ -57,7 +57,7 @@ impl PrivateKey for X25519PrivateKey {
 
         agreement::agree(
             &self.key,
-            &agreement::UnparsedPublicKey::new(&agreement::X25519, &peer_public_key.bytes),
+            agreement::UnparsedPublicKey::new(&agreement::X25519, &peer_public_key.bytes),
             Error::Unspecified,
             |okm| {
                 Ok(SharedSecret {

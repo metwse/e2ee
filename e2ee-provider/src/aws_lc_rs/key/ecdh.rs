@@ -76,7 +76,7 @@ impl PrivateKey for EcdhPrivateKey {
 
         agreement::agree(
             &self.key,
-            &agreement::UnparsedPublicKey::new(
+            agreement::UnparsedPublicKey::new(
                 map_algorithm!(self.algorithm),
                 &peer_public_key.bytes,
             ),

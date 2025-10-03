@@ -128,7 +128,7 @@ pub trait PrivateKey {
 /// A private key used for digital signatures.
 pub trait SigningKey {
     /// Computes public key of the signing key.
-    fn compute_public_key(&self) -> Result<Box<dyn PublicKey>, Error>;
+    fn compute_public_key(&self) -> Result<Box<dyn VerifyingKey>, Error>;
 
     /// Signs given `message` using the selected digest function.
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error>;
