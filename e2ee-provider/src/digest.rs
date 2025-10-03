@@ -2,25 +2,25 @@ use crate::Error;
 use alloc::{boxed::Box, vec::Vec};
 use zeroize::Zeroize;
 
-/// Available hash algorithms.
+/// Supported hash algorithms.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Algorithm {
-    /// SHA3-224 as specified in FIPS 202.
+    /// SHA3-224, as specified in FIPS 202.
     Sha3_224 = 1096,
-    /// SHA3-256 as specified in FIPS 202.
+    /// SHA3-256, as specified in FIPS 202.
     Sha3_256 = 1097,
-    /// SHA3-384 as specified in FIPS 202.
+    /// SHA3-384, as specified in FIPS 202.
     Sha3_384 = 1098,
-    /// SHA3-512 as specified in FIPS 202.
+    /// SHA3-512, as specified in FIPS 202.
     Sha3_512 = 1099,
-    /// SHA-224 as specified in FIPS 180-4.
+    /// SHA-224, as specified in FIPS 180-4.
     Sha224 = 675,
-    /// SHA-256 as specified in FIPS 180-4.
+    /// SHA-256, as specified in FIPS 180-4.
     Sha256 = 672,
-    /// SHA-384 as specified in FIPS 180-4.
+    /// SHA-384, as specified in FIPS 180-4.
     Sha384 = 673,
-    /// SHA-512 as specified in FIPS 180-4.
+    /// SHA-512, as specified in FIPS 180-4.
     Sha512 = 674,
 }
 
@@ -42,34 +42,34 @@ impl TryFrom<u32> for Algorithm {
     }
 }
 
-/// Describes a cryptographic hash function.
+/// A cryptographic hash function.
 pub trait Hash {
-    /// Start an incremental hash computation.
+    /// Starts an incremental hash computation.
     fn start(&self) -> Box<dyn Context>;
 
-    /// Output length of hash function.
+    /// Returns output length of the hash function.
     fn output_len(&self) -> usize;
 
-    /// Returns the digest of data.
+    /// Computes and returns the digest of the given data.
     fn hash(&self, data: &[u8]) -> Output;
 
-    /// Algorithm of the hash function.
+    /// Returns the digest of data.
     fn algorithm(&self) -> Algorithm;
 }
 
-/// Incrementally computed hash.
+/// Incremental hash computation context.
 pub trait Context {
-    /// Add data to the computation.
+    /// Adds data to the current hash computation.
     fn update(&mut self, data: &[u8]);
 
-    /// Terminate and finish the computation, returning the resulting output.
+    /// Finalizes the computation and returns the resulting digest.
     fn finish(self: Box<Self>) -> Output;
 
-    /// Algorithm being used in incremental hash computation.
+    /// Algorithm used in this hash computation.
     fn algorithm(&self) -> Algorithm;
 }
 
-/// Output of a hash function.
+/// The output (digest) of a hash function.
 pub struct Output {
     pub(crate) buf: Vec<u8>,
 }

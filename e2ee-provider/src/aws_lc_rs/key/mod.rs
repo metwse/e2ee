@@ -13,7 +13,7 @@ impl KeyProvider for AwsLcRs {
         todo!()
     }
 
-    fn load_signing_key(&self, _key_bytes: PrivateKeyBytes) -> Result<Box<dyn SingingKey>, Error> {
+    fn load_signing_key(&self, _key_bytes: PrivateKeyBytes) -> Result<Box<dyn SigningKey>, Error> {
         todo!()
     }
 

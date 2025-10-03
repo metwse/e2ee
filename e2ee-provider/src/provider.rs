@@ -1,17 +1,18 @@
 use crate::{digest, hkdf};
 
-/// A provider that maps algorithms to cryptographic handlers.
+/// A provider that maps algorithms to their corresponding cryptographic
+/// handlers.
 ///
-/// Allows querying a cryptographic function by algorithm and exposes the full
+/// Enables querying cryptographic functions by algorithm and exposes the full
 /// list of supported algorithms in order of preference.
 pub trait Provider<A, T> {
-    /// Returns the cryptographic handler for the given algorithm.
+    /// Returns the cryptographic handler for the specified algorithm.
     fn get(&self, algorithm: A) -> Option<T>;
 
-    /// Returns all supported algorithms in preference order.
+    /// Returns all supported algorithms.
     fn supported_algorithms(&self) -> &'static [A];
 
-    /// Wheter or not the algorithm is supported.
+    /// Wheter the given algorithm is supported.
     fn is_algorithm_supported(&self, algorithm: A) -> bool;
 }
 

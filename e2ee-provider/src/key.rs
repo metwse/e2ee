@@ -2,23 +2,26 @@ use crate::Error;
 use alloc::{boxed::Box, vec::Vec};
 use zeroize::Zeroize;
 
-/// Available elliptic curves.
+/// Supported elliptic curves.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Curve {
-    /// NSA Suite B P-256 curve
+    /// NIST P-256 curve (NSA Suite B).
+    ///
     /// Also known as: prime256v1, secp256r1, prime256v1
     P256 = 415,
-    /// NSA Suite B P-384 curve
+    /// NIST P-384 curve (NSA Suite B).
+    ///
     /// Also known as: secp384r1, ansip384r1
     P384 = 715,
-    /// NSA Suite B P-521 curve
+    /// NIST P-521 curve (NSA Suite B).
+    ///
     /// Also known as: secp521r1, ansip521r1
     P521 = 716,
-    /// curve25519 as described by
+    /// Curve25519 as described by
     /// [RFC7748](https://datatracker.ietf.org/doc/html/rfc7748).
     Curve25519 = 1034,
-    /// curve448 as described by
+    /// Curve448 as described by
     /// [RFC7748](https://datatracker.ietf.org/doc/html/rfc7748).
     Curve448 = 1035,
 }
@@ -41,13 +44,13 @@ impl TryFrom<u32> for Curve {
 /// Serialized private key bytes.
 #[derive(Clone)]
 pub enum PrivateKeyBytes {
-    /// PKCS #8 private key DER v1 as described in
+    /// PKCS #8 v1 private key in DER format, defined in
     /// [RFC 5208](https://datatracker.ietf.org/doc/html/rfc5208).
     Pkcs8V1KeyDer(Vec<u8>),
-    /// PKCS #8 private key DER v2 as described in
+    /// PKCS #8 v2 private key in DER format, defined in
     /// [RFC 5208](https://datatracker.ietf.org/doc/html/rfc5208).
     Pkcs8V2KeyDer(Vec<u8>),
-    /// Elliptic curve private key structure as described in
+    /// Elliptic curve private key structure in DER format, defined in
     /// [RFC 5915](https://datatracker.ietf.org/doc/html/rfc5915).
     EcPrivateKeyDer(Vec<u8>),
     /// Curve25519 seed encoded as a big-endian fixed-length integer.
@@ -57,42 +60,42 @@ pub enum PrivateKeyBytes {
 /// Serialized public key bytes.
 #[derive(Clone)]
 pub enum PublicKeyBytes {
-    /// Internet X.509 public key as described in
+    /// Internet X.509 public key as defined in
     /// [RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280).
     X509KeyDer(Vec<u8>),
-    /// Elliptic curve public key structure as described in
+    /// Elliptic curve public key structure in DER format, defined in
     /// [RFC 5480](https://datatracker.ietf.org/doc/html/rfc5480).
     EcPublicKeyDer(Vec<u8>),
 }
 
 /// Mechanism for loading or generating keys.
 pub trait KeyProvider {
-    /// Loads private key from binary.
+    /// Loads a private (agreement) key from raw bytes.
     fn load_private_key(&self, key_bytes: PrivateKeyBytes) -> Result<Box<dyn PrivateKey>, Error>;
 
-    /// Loads signing key from binary.
-    fn load_signing_key(&self, key_bytes: PrivateKeyBytes) -> Result<Box<dyn SingingKey>, Error>;
+    /// Loads a signing key from raw bytes.
+    fn load_signing_key(&self, key_bytes: PrivateKeyBytes) -> Result<Box<dyn SigningKey>, Error>;
 
-    /// Loads identity (signature + agreement) private key from binary.
+    /// Loads an identity (signing + agreement) private key from raw bytes.
     fn load_identity_private_key(
         &self,
         key_bytes: PrivateKeyBytes,
     ) -> Result<Box<dyn IdentityPrivateKey>, Error>;
 
-    /// Loads public key from binary.
+    /// Loads a public (agreement) key from raw bytes.
     fn load_public_key(&self, key_bytes: PublicKeyBytes) -> Result<Box<dyn PublicKey>, Error>;
 
-    /// Loads signature verification public key from binary.
+    /// Loads a verifying key from raw bytes.
     fn load_verifying_key(&self, key_bytes: PublicKeyBytes)
     -> Result<Box<dyn VerifyingKey>, Error>;
 
-    /// Loads identity (signature + agreement) private key from binary.
+    /// Loads identity (signature + agreement) public key from binary.
     fn load_identity_public_key(
         &self,
         key_bytes: PublicKeyBytes,
     ) -> Result<Box<dyn IdentityPublicKey>, Error>;
 
-    /// Generates an ephemeral private key.
+    /// Generates a new ephemeral private key.
     fn generate_ephemeral_private_key(
         &self,
         algorithm: Curve,
@@ -102,48 +105,52 @@ pub trait KeyProvider {
     fn is_curve_supported(&self, algorithm: Curve) -> bool;
 }
 
-/// A private key for key agreement. The signature of [`agree`] allows
-/// [`PrivateKey`] to be used for more than one key agreement.
+/// A private key for key agreement.
+///
+/// The signature of [`agree`] allows a [`PrivateKey`] to be used for
+/// multiple key agreements.
 ///
 /// [`agree`]: PrivateKey::agree
 pub trait PrivateKey {
-    /// DH key agreement.
+    /// Performs a Diffie-Hellman (DH) key agreement.
     fn agree(&self, peer_public_key: Box<dyn PublicKey>) -> Result<SharedSecret, Error>;
 
     /// Computes public key of the private key.
     fn compute_public_key(&self) -> Result<Box<dyn PublicKey>, Error>;
 
-    /// Serializes underlying private key as bytes.
+    /// Serializes the private key into bytes.
     fn to_bytes(&self) -> PrivateKeyBytes;
 
-    /// Kind of the private key we have.
+    /// Returns the curve associated with this key.
     fn algorithm(&self) -> Curve;
 }
 
-/// A private key for digital signatures.
-pub trait SingingKey {
+/// A private key used for digital signatures.
+pub trait SigningKey {
     /// Computes public key of the signing key.
     fn compute_public_key(&self) -> Result<Box<dyn PublicKey>, Error>;
 
-    /// Signs `message` using the selected digest function.
+    /// Signs given `message` using the selected digest function.
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error>;
 
-    /// Serializes underlying private key as bytes.
+    /// Serializes underlying private key into bytes.
     fn to_bytes(&self) -> PrivateKeyBytes;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
 }
 
-/// A private key capable of both signing: and key agreement.
-pub trait IdentityPrivateKey: PrivateKey + SingingKey {}
+/// A private key capable of both signing and key agreement.
+pub trait IdentityPrivateKey: PrivateKey + SigningKey {}
 
-/// A private key only for key agreement. The signature of [`agree_ephemeral`]
-/// allows [`EphemeralPrivateKey`] to be used for more than one key agreement.
+/// An ephemeral private key for key agreement.
+///
+/// The signature of [`agree_ephemeral`] allows an [`EphemeralPrivateKey`]
+/// to be used for multiple key agreements.
 ///
 /// [`agree_ephemeral`]: EphemeralPrivateKey::agree_ephemeral
 pub trait EphemeralPrivateKey {
-    /// DH key agreement.
+    /// Performs a Diffie-Hellman (DH) key agreement.
     fn agree_ephemeral(
         self: Box<Self>,
         peer_public_key: Box<dyn PublicKey>,
@@ -156,21 +163,21 @@ pub trait EphemeralPrivateKey {
     fn algorithm(&self) -> Curve;
 }
 
-/// A public key can be used for key agreement.
+/// A public key for key agreement.
 pub trait PublicKey {
-    /// Bytes constructed public key.
+    /// Serializes the public key into bytes.
     fn to_bytes(&self) -> PublicKeyBytes;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
 }
 
-/// A public key can be used for key agreement.
+/// A public key for verifying digital signatures.
 pub trait VerifyingKey {
-    /// Verifies signature of the message.
+    /// Verifies the signature of the given `message`.
     fn verify(&self, message: &[u8], signature: &[u8]) -> bool;
 
-    /// Serializes underlying public key as DER.
+    /// Returns the underlying public key in DER format.
     fn as_der(&self) -> &PublicKeyBytes;
 
     /// Kind of the private key we have.

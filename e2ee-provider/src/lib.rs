@@ -1,5 +1,5 @@
-//! `e2ee-provider` unifies the function interfaces of different cryptographic
-//! libraries into a single abstraction.
+//! `e2ee-provider` standardizes the function interfaces of different
+//! cryptographic libraries into a single abstraction.
 
 #![forbid(unsafe_code, unused_must_use)]
 #![warn(clippy::all, clippy::cargo, missing_docs)]
@@ -12,19 +12,19 @@ extern crate alloc;
 /// Key provider interface.
 pub mod key;
 
-/// Hash provider interface.
+/// Digest (hash) provider interface.
 pub mod digest;
 
-/// HMAC-based key derivation interface.
+/// HMAC-based key derivation funciton (HKDF) interface.
 pub mod hkdf;
 
-/// Provider interface.
+/// General provider interface.
 pub mod provider;
 
 /// Error reporting.
 mod error;
 
-/// aws-lc-rs based `CryptoProvider`.
+/// `CryptoProvider` implementation using aws-lc-rs.
 #[cfg(feature = "aws_lc_rs")]
 pub mod aws_lc_rs;
 
@@ -34,9 +34,9 @@ pub use provider::{HashProvider, HkdfProvider};
 
 /// Cryptographic functions used by e2ee.
 pub struct CryptoProvider {
-    /// HMAC-based key derivation.
+    /// HKDF (HMAC-based key derivation).
     pub hkdf: &'static dyn HkdfProvider,
-    /// Hash functions.
+    /// Hashing functions.
     pub hash: &'static dyn HashProvider,
     /// Key provider.
     pub key: &'static dyn KeyProvider,
