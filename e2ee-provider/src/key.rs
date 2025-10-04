@@ -76,24 +76,12 @@ pub trait KeyProvider {
     /// Loads a signing key from raw bytes.
     fn load_signing_key(&self, key_bytes: PrivateKeyBytes) -> Result<Box<dyn SigningKey>, Error>;
 
-    /// Loads an identity (signing + agreement) private key from raw bytes.
-    fn load_identity_private_key(
-        &self,
-        key_bytes: PrivateKeyBytes,
-    ) -> Result<Box<dyn IdentityPrivateKey>, Error>;
-
     /// Loads a public (agreement) key from raw bytes.
     fn load_public_key(&self, key_bytes: PublicKeyBytes) -> Result<Box<dyn PublicKey>, Error>;
 
     /// Loads a verifying key from raw bytes.
     fn load_verifying_key(&self, key_bytes: PublicKeyBytes)
     -> Result<Box<dyn VerifyingKey>, Error>;
-
-    /// Loads identity (signature + agreement) public key from binary.
-    fn load_identity_public_key(
-        &self,
-        key_bytes: PublicKeyBytes,
-    ) -> Result<Box<dyn IdentityPublicKey>, Error>;
 
     /// Generates a new ephemeral private key.
     fn generate_ephemeral_private_key(

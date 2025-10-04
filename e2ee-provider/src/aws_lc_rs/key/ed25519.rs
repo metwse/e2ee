@@ -1,4 +1,4 @@
-use crate::{key::*, Error};
+use crate::{Error, key::*};
 use alloc::{boxed::Box, vec::Vec};
 use aws_lc_rs::{
     encoding::{AsDer, Pkcs8V2Der, PublicKeyX509Der},

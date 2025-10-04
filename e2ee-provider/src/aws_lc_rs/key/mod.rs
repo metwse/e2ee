@@ -8,10 +8,10 @@ pub mod x25519;
 /// ECDH key agreement using aws-lc-rs.
 pub mod ecdh;
 
-/// Curve25519 signature algorithm using aws-lc-rs .
+/// Curve25519 digital signature algorithm using aws-lc-rs.
 pub mod ed25519;
 
-/// Elliptic curve digital signature algorithm using aws-lc-rs .
+/// Elliptic curve digital signature algorithm using aws-lc-rs.
 pub mod ecdsa;
 
 impl KeyProvider for AwsLcRs {
@@ -23,13 +23,6 @@ impl KeyProvider for AwsLcRs {
         todo!()
     }
 
-    fn load_identity_private_key(
-        &self,
-        _key_bytes: PrivateKeyBytes,
-    ) -> Result<Box<dyn IdentityPrivateKey>, Error> {
-        todo!()
-    }
-
     fn load_public_key(&self, _key_bytes: PublicKeyBytes) -> Result<Box<dyn PublicKey>, Error> {
         todo!()
     }
@@ -38,13 +31,6 @@ impl KeyProvider for AwsLcRs {
         &self,
         _key_bytes: PublicKeyBytes,
     ) -> Result<Box<dyn VerifyingKey>, Error> {
-        todo!()
-    }
-
-    fn load_identity_public_key(
-        &self,
-        _key_bytes: PublicKeyBytes,
-    ) -> Result<Box<dyn IdentityPublicKey>, Error> {
         todo!()
     }
 
