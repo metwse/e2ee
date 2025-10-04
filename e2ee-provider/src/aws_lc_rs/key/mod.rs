@@ -1,5 +1,5 @@
 use super::AwsLcRs;
-use crate::{Error, KeyProvider, key::*};
+use crate::{key::*, Error, KeyProvider};
 use alloc::boxed::Box;
 
 /// X25519 key agreement using aws-lc-rs.
@@ -15,20 +15,51 @@ pub mod ed25519;
 pub mod ecdsa;
 
 impl KeyProvider for AwsLcRs {
-    fn load_private_key(&self, _key_bytes: PrivateKeyBytes) -> Result<Box<dyn PrivateKey>, Error> {
-        todo!()
-    }
-
-    fn load_signing_key(&self, _key_bytes: PrivateKeyBytes) -> Result<Box<dyn SigningKey>, Error> {
-        todo!()
-    }
-
-    fn load_public_key(&self, _key_bytes: PublicKeyBytes) -> Result<Box<dyn PublicKey>, Error> {
-        todo!()
-    }
-
-    fn load_verifying_key(
+    fn load_private_key(
         &self,
+        _algorithm: Curve,
+        _key_bytes: PrivateKeyBytes,
+    ) -> Result<Box<dyn PrivateKey>, Error> {
+        todo!()
+    }
+
+    fn load_eddsa_signing_key(
+        &self,
+        _algorithm: Curve,
+        _key_bytes: PrivateKeyBytes,
+    ) -> Result<Box<dyn SigningKey>, Error> {
+        todo!()
+    }
+
+    fn load_ecdsa_signing_key(
+        &self,
+        _algorithm: Curve,
+        _digest: crate::digest::Digest,
+        _key_bytes: PrivateKeyBytes,
+    ) -> Result<Box<dyn SigningKey>, Error> {
+        todo!()
+    }
+
+    fn load_public_key(
+        &self,
+        _algorithm: Curve,
+        _key_bytes: PublicKeyBytes,
+    ) -> Result<Box<dyn PublicKey>, Error> {
+        todo!()
+    }
+
+    fn load_eddsa_verifying_key(
+        &self,
+        _algorithm: Curve,
+        _key_bytes: PublicKeyBytes,
+    ) -> Result<Box<dyn VerifyingKey>, Error> {
+        todo!()
+    }
+
+    fn load_ecdsa_verifying_key(
+        &self,
+        _algorithm: Curve,
+        _digest: crate::digest::Digest,
         _key_bytes: PublicKeyBytes,
     ) -> Result<Box<dyn VerifyingKey>, Error> {
         todo!()

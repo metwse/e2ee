@@ -1,4 +1,4 @@
-use crate::Error;
+use crate::{digest::Digest, Error};
 use alloc::{boxed::Box, vec::Vec};
 use zeroize::Zeroize;
 
@@ -71,17 +71,48 @@ pub enum PublicKeyBytes {
 /// Mechanism for loading or generating keys.
 pub trait KeyProvider {
     /// Loads a private (agreement) key from raw bytes.
-    fn load_private_key(&self, key_bytes: PrivateKeyBytes) -> Result<Box<dyn PrivateKey>, Error>;
+    fn load_private_key(
+        &self,
+        algorithm: Curve,
+        key_bytes: PrivateKeyBytes,
+    ) -> Result<Box<dyn PrivateKey>, Error>;
 
-    /// Loads a signing key from raw bytes.
-    fn load_signing_key(&self, key_bytes: PrivateKeyBytes) -> Result<Box<dyn SigningKey>, Error>;
+    /// Loads an EdDSA signing key from raw bytes.
+    fn load_eddsa_signing_key(
+        &self,
+        algorithm: Curve,
+        key_bytes: PrivateKeyBytes,
+    ) -> Result<Box<dyn SigningKey>, Error>;
+
+    /// Loads an ECDSA signing key from raw bytes.
+    fn load_ecdsa_signing_key(
+        &self,
+        algorithm: Curve,
+        digest: Digest,
+        key_bytes: PrivateKeyBytes,
+    ) -> Result<Box<dyn SigningKey>, Error>;
 
     /// Loads a public (agreement) key from raw bytes.
-    fn load_public_key(&self, key_bytes: PublicKeyBytes) -> Result<Box<dyn PublicKey>, Error>;
+    fn load_public_key(
+        &self,
+        algorithm: Curve,
+        key_bytes: PublicKeyBytes,
+    ) -> Result<Box<dyn PublicKey>, Error>;
 
-    /// Loads a verifying key from raw bytes.
-    fn load_verifying_key(&self, key_bytes: PublicKeyBytes)
-    -> Result<Box<dyn VerifyingKey>, Error>;
+    /// Loads an EdDSA verifying key from raw bytes.
+    fn load_eddsa_verifying_key(
+        &self,
+        algorithm: Curve,
+        key_bytes: PublicKeyBytes,
+    ) -> Result<Box<dyn VerifyingKey>, Error>;
+
+    /// Loads an ECDSA verifying key from raw bytes.
+    fn load_ecdsa_verifying_key(
+        &self,
+        algorithm: Curve,
+        digest: Digest,
+        key_bytes: PublicKeyBytes,
+    ) -> Result<Box<dyn VerifyingKey>, Error>;
 
     /// Generates a new ephemeral private key.
     fn generate_ephemeral_private_key(
@@ -128,9 +159,6 @@ pub trait SigningKey {
     fn algorithm(&self) -> Curve;
 }
 
-/// A private key capable of both signing and key agreement.
-pub trait IdentityPrivateKey: PrivateKey + SigningKey {}
-
 /// An ephemeral private key for key agreement.
 ///
 /// The signature of [`agree_ephemeral`] allows an [`EphemeralPrivateKey`]
@@ -171,9 +199,6 @@ pub trait VerifyingKey {
     /// Kind of the private key we have.
     fn algorithm(&self) -> Curve;
 }
-
-/// A public key capable of both signing and key agreement.
-pub trait IdentityPublicKey: PublicKey + VerifyingKey {}
 
 /// Result of a key agreement.
 pub struct SharedSecret {
