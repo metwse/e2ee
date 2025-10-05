@@ -9,14 +9,14 @@
 
 extern crate alloc;
 
-/// Key provider interface.
-pub mod key;
-
 /// Digest (hash) provider interface.
 pub mod digest;
 
 /// HMAC-based key derivation funciton (HKDF) interface.
 pub mod hkdf;
+
+/// Elliptic curve cryptography.
+pub mod ec;
 
 /// General provider interface.
 pub mod provider;
@@ -29,7 +29,6 @@ mod error;
 pub mod aws_lc_rs;
 
 pub use error::Error;
-pub use key::KeyProvider;
 pub use provider::{HashProvider, HkdfProvider};
 
 /// Cryptographic functions used by e2ee.
@@ -38,6 +37,6 @@ pub struct CryptoProvider {
     pub hkdf: &'static dyn HkdfProvider,
     /// Hashing functions.
     pub hash: &'static dyn HashProvider,
-    /// Key provider.
-    pub key: &'static dyn KeyProvider,
+    // /// Key provider.
+    // pub key: &'static dyn KeyProvider,
 }

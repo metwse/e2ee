@@ -14,10 +14,10 @@ pub enum Algorithm {
     Sha512 = 1498,
 }
 
-impl TryFrom<u32> for Algorithm {
+impl TryFrom<i32> for Algorithm {
     type Error = Error;
 
-    fn try_from(value: u32) -> Result<Self, Self::Error> {
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
         match value {
             1496 => Ok(Self::Sha256),
             1497 => Ok(Self::Sha384),

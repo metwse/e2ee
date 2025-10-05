@@ -18,7 +18,7 @@ rustdoc-args = ["--cfg", "docsrs"]
 
 [features]
 aws_lc_rs = ["dep:aws-lc-rs"]
-openssl = ["dep:openssl"]
+# openssl = ["dep:openssl"]
 
 [dependencies]
 aws-lc-rs = { workspace = true, optional = true }

@@ -24,10 +24,10 @@ pub enum Algorithm {
     Sha512 = 674,
 }
 
-impl TryFrom<u32> for Algorithm {
+impl TryFrom<i32> for Algorithm {
     type Error = Error;
 
-    fn try_from(value: u32) -> Result<Self, Self::Error> {
+    fn try_from(value: i32) -> Result<Self, Self::Error> {
         match value {
             1096 => Ok(Self::Sha3_224),
             1097 => Ok(Self::Sha3_256),
