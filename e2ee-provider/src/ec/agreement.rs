@@ -1,4 +1,7 @@
-use super::{Curve, PrivateKeyDer, PublicKeyDer};
+use super::{
+    Curve,
+    encoding::{PrivateKeySerializer, PublicKeySerializer},
+};
 use crate::Error;
 use alloc::{boxed::Box, vec::Vec};
 use zeroize::Zeroize;
@@ -70,11 +73,11 @@ pub trait PrivateKey {
     /// Computes public key of the private key.
     fn compute_public_key(&self) -> Result<Box<dyn PublicKey>, Error>;
 
-    /// Serializes the private key into DER.
-    fn as_der(&self) -> PrivateKeyDer;
-
     /// Returns the algorithm associated with this key.
     fn algorithm(&self) -> Algorithm;
+
+    /// Interface for serializing the key into binary formats.
+    fn to_serializer(self: Box<Self>) -> Box<dyn PrivateKeySerializer>;
 }
 
 /// An ephemeral private key for key agreement.
@@ -99,11 +102,11 @@ pub trait EphemeralPrivateKey {
 
 /// A public key for key agreement.
 pub trait PublicKey {
-    /// Serializes the public key into DER.
-    fn as_der(self: Box<Self>) -> PublicKeyDer;
-
     /// Kind of the public key we have.
     fn algorithm(&self) -> Algorithm;
+
+    /// Interface for serializing the key into binary formats.
+    fn to_serializer(self: Box<Self>) -> Box<dyn PublicKeySerializer>;
 }
 
 /// Result of a key agreement.

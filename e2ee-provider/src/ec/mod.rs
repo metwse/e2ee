@@ -1,12 +1,15 @@
 use crate::Error;
-use alloc::vec::Vec;
-use zeroize::Zeroize;
+use alloc::boxed::Box;
+use encoding::{PrivateKeyBin, PrivateKeyDer, PublicKeyBin, PublicKeyDer};
 
 /// Elliptic curve key agreement interface.
 pub mod agreement;
 
 /// Elliptic curve digital signature algorithms.
 pub mod signature;
+
+/// Public and private key encoding formats.
+pub mod encoding;
 
 /// Supported elliptic curves.
 #[non_exhaustive]
@@ -47,61 +50,58 @@ impl TryFrom<i32> for Curve {
     }
 }
 
-/// Serialized private key bytes.
-#[derive(Clone)]
-pub enum PrivateKeyDer {
-    /// PKCS #8 v1 private key in DER format, defined in
-    /// [RFC 5208](https://datatracker.ietf.org/doc/html/rfc5208).
-    Pkcs8V1Key(Vec<u8>),
-    /// PKCS #8 v2 private key in DER format, defined in
-    /// [RFC 5208](https://datatracker.ietf.org/doc/html/rfc5208).
-    Pkcs8V2Key(Vec<u8>),
-    /// Elliptic curve private key structure in DER format, defined in
-    /// [RFC 5915](https://datatracker.ietf.org/doc/html/rfc5915).
-    EcPrivateKey(Vec<u8>),
-}
+/// Mechanism for loading or generating keys.
+pub trait KeyProvider {
+    /// Loads a private (agreement) key from DER.
+    fn load_private_key_der(
+        algorithm: agreement::Algorithm,
+        der: PrivateKeyDer,
+    ) -> Result<Box<dyn agreement::PrivateKey>, Error>;
 
-/// Serialized public key bytes.
-#[derive(Clone)]
-pub enum PublicKeyDer {
-    /// Internet X.509 public key as defined in
-    /// [RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280).
-    X509Key(Vec<u8>),
-    /// Elliptic curve public key structure in DER format, defined in
-    /// [RFC 5480](https://datatracker.ietf.org/doc/html/rfc5480).
-    EcPublicKey(Vec<u8>),
-}
+    /// Loads a private (agreement) key from big-endian bytes.
+    fn load_private_key_bin(
+        algorithm: agreement::Algorithm,
+        der: PrivateKeyBin,
+    ) -> Result<Box<dyn agreement::PrivateKey>, Error>;
 
-impl Drop for PrivateKeyDer {
-    fn drop(&mut self) {
-        match self {
-            Self::Pkcs8V1Key(key) | Self::Pkcs8V2Key(key) | Self::EcPrivateKey(key) => {
-                key.zeroize()
-            }
-        }
-    }
-}
+    /// Loads a public (agreement) key from DER.
+    fn load_public_key_der(
+        algorithm: agreement::Algorithm,
+        der: PublicKeyDer,
+    ) -> Result<Box<dyn agreement::PublicKey>, Error>;
 
-impl AsRef<[u8]> for PrivateKeyDer {
-    fn as_ref(&self) -> &[u8] {
-        match self {
-            Self::Pkcs8V1Key(key) | Self::Pkcs8V2Key(key) | Self::EcPrivateKey(key) => key,
-        }
-    }
-}
+    /// Loads a private (agreement) key from big-endian bytes.
+    fn load_public_key_bin(
+        algorithm: agreement::Algorithm,
+        der: PublicKeyBin,
+    ) -> Result<Box<dyn agreement::PublicKey>, Error>;
 
-impl Drop for PublicKeyDer {
-    fn drop(&mut self) {
-        match self {
-            Self::X509Key(key) | Self::EcPublicKey(key) => key.zeroize(),
-        }
-    }
-}
+    /// Generates a new ephemeral private key.
+    fn generate_ephemeral_private_key(
+        algorithm: agreement::Algorithm,
+    ) -> Result<Box<dyn agreement::EphemeralPrivateKey>, Error>;
 
-impl AsRef<[u8]> for PublicKeyDer {
-    fn as_ref(&self) -> &[u8] {
-        match self {
-            Self::X509Key(key) | Self::EcPublicKey(key) => key,
-        }
-    }
+    /// Loads an elliptic curve signing key from DER.
+    fn load_signing_key_der(
+        algorithm: signature::Algorithm,
+        der: PrivateKeyDer,
+    ) -> Result<Box<dyn signature::SigningKey>, Error>;
+
+    /// Loads an elliptic curve signing key from raw bytes.
+    fn load_signing_key_bin(
+        algorithm: signature::Algorithm,
+        der: PrivateKeyDer,
+    ) -> Result<Box<dyn signature::SigningKey>, Error>;
+
+    /// Loads an elliptic curve verifying key from DER.
+    fn load_verifying_key_der(
+        algorithm: signature::Algorithm,
+        der: PublicKeyDer,
+    ) -> Result<Box<dyn signature::VerifyingKey>, Error>;
+
+    /// Loads an elliptic curve signing key from raw bytes.
+    fn load_verifying_key_bin(
+        algorithm: signature::Algorithm,
+        der: PublicKeyBin,
+    ) -> Result<Box<dyn signature::VerifyingKey>, Error>;
 }

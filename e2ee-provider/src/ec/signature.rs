@@ -1,6 +1,9 @@
-use alloc::{boxed::Box, vec::Vec};
+use super::{
+    Curve,
+    encoding::{PrivateKeySerializer, PublicKeySerializer},
+};
 use crate::Error;
-use super::{PrivateKeyDer, PublicKeyDer, Curve};
+use alloc::{boxed::Box, vec::Vec};
 
 /// Supported signature algorithms.
 #[non_exhaustive]
@@ -70,17 +73,17 @@ impl TryFrom<i32> for Algorithm {
 
 /// A private key used for digital signatures.
 pub trait SigningKey {
-    /// Computes public key of the signing key.
-    fn compute_public_key(&self) -> Result<Box<dyn VerifyingKey>, Error>;
-
     /// Signs given `message` using the selected digest function.
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error>;
 
-    /// Serializes underlying private key into DER.
-    fn as_der(&self) -> PrivateKeyDer;
+    /// Computes public key of the signing key.
+    fn compute_public_key(&self) -> Result<Box<dyn VerifyingKey>, Error>;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Algorithm;
+
+    /// Interface for serializing the key into binary formats.
+    fn to_serializer(self: Box<Self>) -> Box<dyn PrivateKeySerializer>;
 }
 
 /// A public key for verifying digital signatures.
@@ -88,9 +91,9 @@ pub trait VerifyingKey {
     /// Verifies the signature of the given `message`.
     fn verify(&self, message: &[u8], signature: &[u8]) -> bool;
 
-    /// Serializes the public key into DER.
-    fn to_bytes(&self) -> PublicKeyDer;
-
     /// Kind of the private key we have.
     fn algorithm(&self) -> Algorithm;
+
+    /// Interface for serializing the key into binary formats.
+    fn to_serializer(self: Box<Self>) -> Box<dyn PublicKeySerializer>;
 }
