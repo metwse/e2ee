@@ -37,7 +37,7 @@ impl TryFrom<i32> for Algorithm {
             672 => Ok(Self::Sha256),
             673 => Ok(Self::Sha384),
             674 => Ok(Self::Sha512),
-            _ => Err(Error::UnsupportedAlgorithm),
+            _ => Err(Error::UnsupportedDigestFunction),
         }
     }
 }

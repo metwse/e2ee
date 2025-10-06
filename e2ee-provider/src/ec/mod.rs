@@ -45,7 +45,7 @@ impl TryFrom<i32> for Curve {
             716 => Ok(Self::P521),
             1034 => Ok(Self::Curve25519),
             1035 => Ok(Self::Curve448),
-            _ => Err(Error::UnsupportedAlgorithm),
+            _ => Err(Error::UnsupportedCurve),
         }
     }
 }

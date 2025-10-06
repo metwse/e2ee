@@ -22,7 +22,7 @@ impl TryFrom<i32> for Algorithm {
             1496 => Ok(Self::Sha256),
             1497 => Ok(Self::Sha384),
             1498 => Ok(Self::Sha512),
-            _ => Err(Error::UnsupportedAlgorithm),
+            _ => Err(Error::UnsupportedDigestFunction),
         }
     }
 }

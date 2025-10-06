@@ -50,40 +50,40 @@ pub enum PublicKeyBin {
 /// Methods for serializing private keys into DER or binary formats.
 pub trait PrivateKeySerializer {
     /// Serializes the private key into PKCS#8 v1 DER format.
-    fn to_pkcs8v1_der(self: Box<Self>) -> Result<PrivateKeyDer, Error>;
+    fn as_pkcs8v1_der(&self) -> Result<PrivateKeyDer, Error>;
 
     /// Serializes the private key into PKCS#8 v2 DER format.
-    fn to_pkcs8v2_der(self: Box<Self>) -> Result<PrivateKeyDer, Error>;
+    fn as_pkcs8v2_der(&self) -> Result<PrivateKeyDer, Error>;
 
     /// Serializes the private key into elliptic curve private key structure,
     /// defined in [RFC 5915](https://datatracker.ietf.org/doc/html/rfc5915).
-    fn to_rfc_5915_private_key_der(self: Box<Self>) -> Result<PrivateKeyDer, Error>;
+    fn as_rfc_5915_private_key_der(&self) -> Result<PrivateKeyDer, Error>;
 
     /// Exposes the seed encoded as a big-endian fixed-length integer.
     ///
     /// Only X25519 and X448 are supported.
-    fn to_ed_ec_be_bytes(self: Box<Self>) -> Result<PrivateKeyBin, Error>;
+    fn as_ed_ec_be_bytes(&self) -> Result<PrivateKeyBin, Error>;
 
     /// Exposes the private key encoded as a big-endian fixed-length integer.
     ///
     /// X25519 and X448 are not supported.
-    fn to_ec_be_bytes(self: Box<Self>) -> Result<PrivateKeyBin, Error>;
+    fn as_ec_be_bytes(&self) -> Result<PrivateKeyBin, Error>;
 }
 
 /// Methods for serializing public keys into DER or binary formats.
 pub trait PublicKeySerializer {
     /// Serializes the key into Internet X.509 Public Key format.
-    fn to_x509_der(self: Box<Self>) -> Result<PublicKeyDer, Error>;
+    fn as_x509_der(&self) -> Result<PublicKeyDer, Error>;
 
     /// Serializes the public key into elliptic curve public key structure,
     /// defined in [RFC 5915](https://datatracker.ietf.org/doc/html/rfc5915).
-    fn to_rfc_5915_private_key_der(self: Box<Self>) -> Result<PublicKeyDer, Error>;
+    fn as_rfc_5915_public_key_der(&self) -> Result<PublicKeyDer, Error>;
 
     /// Serializes the key into a big-endian format.
-    fn to_be_bytes(self: Box<Self>) -> Result<PublicKeyBin, Error>;
+    fn as_be_bytes(&self) -> Result<PublicKeyBin, Error>;
 
     /// Serializes the key into a compressed big-endian format.
-    fn to_compressed_be_bytes(self: Box<Self>) -> Result<PublicKeyBin, Error>;
+    fn as_compressed_be_bytes(&self) -> Result<PublicKeyBin, Error>;
 }
 
 impl Drop for PrivateKeyDer {

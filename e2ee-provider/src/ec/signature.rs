@@ -66,7 +66,7 @@ impl TryFrom<i32> for Algorithm {
             -1114 => Ok(Self::EcdsaP384Sha384Fixed),
             1087 => Ok(Self::Ed25519),
             1088 => Ok(Self::Ed448),
-            _ => Err(Error::UnsupportedAlgorithm),
+            _ => Err(Error::UnsupportedSignatureAlgorithm),
         }
     }
 }
@@ -77,7 +77,7 @@ pub trait SigningKey {
     fn sign(&self, message: &[u8]) -> Result<Vec<u8>, Error>;
 
     /// Computes public key of the signing key.
-    fn compute_public_key(&self) -> Result<Box<dyn VerifyingKey>, Error>;
+    fn compute_public_key(&self) -> Result<Box<dyn PublicKeySerializer>, Error>;
 
     /// Kind of the private key we have.
     fn algorithm(&self) -> Algorithm;

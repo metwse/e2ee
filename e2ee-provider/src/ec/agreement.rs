@@ -55,7 +55,7 @@ impl TryFrom<i32> for Algorithm {
             716 => Ok(Self::EcdhP521),
             1034 => Ok(Self::X25519),
             1035 => Ok(Self::X448),
-            _ => Err(Error::UnsupportedAlgorithm),
+            _ => Err(Error::UnsupportedAgreementAlgorithm),
         }
     }
 }
@@ -71,7 +71,7 @@ pub trait PrivateKey {
     fn agree(&self, peer_public_key: Box<dyn PublicKey>) -> Result<SharedSecret, Error>;
 
     /// Computes public key of the private key.
-    fn compute_public_key(&self) -> Result<Box<dyn PublicKey>, Error>;
+    fn compute_public_key(&self) -> Result<Box<dyn PublicKeySerializer>, Error>;
 
     /// Returns the algorithm associated with this key.
     fn algorithm(&self) -> Algorithm;
@@ -94,7 +94,7 @@ pub trait EphemeralPrivateKey {
     ) -> Result<SharedSecret, Error>;
 
     /// Computes public key of the ephemeral key.
-    fn compute_public_key(&self) -> Result<Box<dyn PublicKey>, Error>;
+    fn compute_public_key(&self) -> Result<Box<dyn PublicKeySerializer>, Error>;
 
     /// Returns the algorithm associated with this key.
     fn algorithm(&self) -> Algorithm;
