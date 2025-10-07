@@ -15,8 +15,8 @@ use aws_lc_rs::{
 
 /// Digital signature algorithm using NSA Suite B elliptic curves.
 pub struct EcdsaSigningKey {
-    key: signature::EcdsaKeyPair,
-    algorithm: Algorithm,
+    pub(super) key: signature::EcdsaKeyPair,
+    pub(super) algorithm: Algorithm,
 }
 
 impl SigningKey for EcdsaSigningKey {
@@ -45,8 +45,8 @@ impl SigningKey for EcdsaSigningKey {
 
 /// Digital signature verification for NSA Suite B elliptic curves.
 pub struct EcdsaVerifyingKey {
-    key: signature::ParsedPublicKey,
-    algorithm: Algorithm,
+    pub(super) key: signature::ParsedPublicKey,
+    pub(super) algorithm: Algorithm,
 }
 
 impl VerifyingKey for EcdsaVerifyingKey {

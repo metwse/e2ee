@@ -11,6 +11,8 @@ pub mod ed25519;
 /// Elliptic curve digital signature algorithm using aws-lc-rs.
 pub mod ecdsa;
 
+mod provider;
+
 //  /// X25519 key agreement using aws-lc-rs.
 //  pub mod x25519;
 

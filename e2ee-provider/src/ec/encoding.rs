@@ -1,5 +1,5 @@
 use crate::Error;
-use alloc::{boxed::Box, vec::Vec};
+use alloc::vec::Vec;
 use zeroize::Zeroize;
 
 /// Serialized private key DER.

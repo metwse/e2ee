@@ -55,25 +55,25 @@ pub trait KeyProvider {
     /// Loads a private (agreement) key from DER.
     fn load_private_key_der(
         algorithm: agreement::Algorithm,
-        der: PrivateKeyDer,
+        der: &PrivateKeyDer,
     ) -> Result<Box<dyn agreement::PrivateKey>, Error>;
 
     /// Loads a private (agreement) key from big-endian bytes.
     fn load_private_key_bin(
         algorithm: agreement::Algorithm,
-        der: PrivateKeyBin,
+        bin: &PrivateKeyBin,
     ) -> Result<Box<dyn agreement::PrivateKey>, Error>;
 
     /// Loads a public (agreement) key from DER.
     fn load_public_key_der(
         algorithm: agreement::Algorithm,
-        der: PublicKeyDer,
+        der: &PublicKeyDer,
     ) -> Result<Box<dyn agreement::PublicKey>, Error>;
 
     /// Loads a private (agreement) key from big-endian bytes.
     fn load_public_key_bin(
         algorithm: agreement::Algorithm,
-        der: PublicKeyBin,
+        bin: &PublicKeyBin,
     ) -> Result<Box<dyn agreement::PublicKey>, Error>;
 
     /// Generates a new ephemeral private key.
@@ -84,24 +84,24 @@ pub trait KeyProvider {
     /// Loads an elliptic curve signing key from DER.
     fn load_signing_key_der(
         algorithm: signature::Algorithm,
-        der: PrivateKeyDer,
+        der: &PrivateKeyDer,
     ) -> Result<Box<dyn signature::SigningKey>, Error>;
 
     /// Loads an elliptic curve signing key from raw bytes.
     fn load_signing_key_bin(
         algorithm: signature::Algorithm,
-        der: PrivateKeyDer,
+        bin: &PrivateKeyBin,
     ) -> Result<Box<dyn signature::SigningKey>, Error>;
 
     /// Loads an elliptic curve verifying key from DER.
     fn load_verifying_key_der(
         algorithm: signature::Algorithm,
-        der: PublicKeyDer,
+        der: &PublicKeyDer,
     ) -> Result<Box<dyn signature::VerifyingKey>, Error>;
 
     /// Loads an elliptic curve signing key from raw bytes.
     fn load_verifying_key_bin(
         algorithm: signature::Algorithm,
-        der: PublicKeyBin,
+        bin: &PublicKeyBin,
     ) -> Result<Box<dyn signature::VerifyingKey>, Error>;
 }

@@ -16,7 +16,7 @@ use aws_lc_rs::{
 ///
 /// [`Ed25519`]: Algorithm::Ed25519
 pub struct Ed25519SigningKey {
-    key: signature::Ed25519KeyPair,
+    pub(super) key: signature::Ed25519KeyPair,
 }
 
 impl SigningKey for Ed25519SigningKey {
@@ -43,7 +43,7 @@ impl SigningKey for Ed25519SigningKey {
 ///
 /// [`Ed25519`]: Algorithm::Ed25519
 pub struct Ed25519VerifyingKey {
-    key: signature::ParsedPublicKey,
+    pub(super) key: signature::ParsedPublicKey,
 }
 
 impl VerifyingKey for Ed25519VerifyingKey {
